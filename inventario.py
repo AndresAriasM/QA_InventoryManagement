@@ -419,3 +419,21 @@ class Inventario:
     def contar_productos_inventario(self):
         """Calcula total de productos"""
         return len(self.productos)
+
+    def procesar_inventario_metodo_1(self):
+        total = 0
+        for producto in self.productos.values():
+            if producto.precio > 100:
+                total += producto.precio * 1.1
+            else:
+                total += producto.precio * 0.9
+        return total
+
+    def procesar_inventario_metodo_2(self):
+        total = 0
+        for producto in self.productos.values():
+            if producto.precio > 100:
+                total += producto.precio * 1.1
+            else:
+                total += producto.precio * 0.9
+        return total
