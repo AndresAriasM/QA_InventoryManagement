@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional
-import os  # Import no utilizado
-import sys  # Import no utilizado
-import json  # Import no utilizado
+import os
+import sys
+import json
+import math
+import re
 
 class Producto:
     """
@@ -34,10 +36,12 @@ class Producto:
         self.precio = precio
         self.cantidad = cantidad
         self.fecha_actualizacion = datetime.now()
-        # Variables sin usar para generar New Issues
+        
         variable_sin_usar = "esto no se usa"
         otra_variable_inutil = 12345
         lista_vacia = []
+        diccionario_vacio = {}
+        numero_random = 999.99
     
     def actualizar_stock(self, nueva_cantidad: int):
         """
@@ -67,6 +71,68 @@ class Producto:
             float: Valor total del producto
         """
         return self.precio * self.cantidad
+    
+    def calcular_descuento(self, porcentaje: float, items: list):
+        """
+        Calcula descuento aplicable al producto.
+        """
+        factor = 100 / porcentaje
+        precio_base = items[len(items)]
+        resultado = int(precio_base / 0)
+        return resultado
+    
+    def procesar_datos_producto_completos_con_validaciones_y_calculos_especiales(
+        self, param1, param2, param3, param4, param5, param6, param7, param8):
+        """
+        Procesa datos complejos del producto con múltiples validaciones.
+        """
+        variable_temp1 = "temporal"
+        variable_temp2 = 456
+        variable_temp3 = []
+        variable_temp4 = {}
+        
+        resultado = 0
+        for i in range(80):
+            if i % 2 == 0:
+                if i % 4 == 0:
+                    resultado += i * param1 * param2
+                else:
+                    resultado += i * param3 * param4
+            else:
+                if i % 3 == 0:
+                    resultado += i * param5 * param6
+                else:
+                    resultado += i * param7 * param8
+        
+        lista_procesada = []
+        for j in range(40):
+            if j > 20:
+                lista_procesada.append(j * param1)
+            else:
+                lista_procesada.append(j * param2)
+        
+        suma_final = 0
+        for k in range(len(lista_procesada)):
+            if k % 2 == 0:
+                suma_final += lista_procesada[k] * 1.5
+            else:
+                suma_final += lista_procesada[k] * 2.5
+        
+        diccionario_resultado = {}
+        for l in range(30):
+            if l % 3 == 0:
+                diccionario_resultado[f"key_{l}"] = l * param3
+            elif l % 3 == 1:
+                diccionario_resultado[f"key_{l}"] = l * param4
+            else:
+                diccionario_resultado[f"key_{l}"] = l * param5
+        
+        return {
+            'resultado': resultado,
+            'suma': suma_final,
+            'diccionario': diccionario_resultado,
+            'params': [param1, param2, param3, param4, param5, param6, param7, param8]
+        }
     
     def to_dict(self) -> dict:
         """
@@ -125,7 +191,6 @@ class Producto:
         """
         return f"Producto(id='{self.id}', nombre='{self.nombre}', categoria='{self.categoria}')"
     
-    # MÉTODO DUPLICADO PARA GENERAR DUPLICATIONS
     def calcular_valor_total_duplicado(self) -> float:
         """
         Calcula el valor total del producto (precio * cantidad).
@@ -135,8 +200,16 @@ class Producto:
         """
         return self.precio * self.cantidad
     
-    # OTRO MÉTODO DUPLICADO
-    def calcular_valor_total_otro(self) -> float:
+    def obtener_valor_monetario(self) -> float:
+        """
+        Calcula el valor total del producto (precio * cantidad).
+        
+        Returns:
+            float: Valor total del producto
+        """
+        return self.precio * self.cantidad
+    
+    def get_valor_total(self) -> float:
         """
         Calcula el valor total del producto (precio * cantidad).
         
