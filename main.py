@@ -12,6 +12,14 @@ Versión: 1.0
 
 import os
 import sys
+import random
+import threading
+import asyncio
+import sqlite3
+import requests
+from datetime import timedelta
+from collections import defaultdict
+import numpy as np  
 from typing import Optional
 from producto import Producto
 from inventario import Inventario

@@ -217,3 +217,23 @@ class Producto:
             float: Valor total del producto
         """
         return self.precio * self.cantidad
+    
+    def metodo_con_errores_reliability(self, lista_precios, divisor):
+        """
+        Método con problemas graves de confiabilidad.
+        """
+        # División por cero sin validación
+        resultado = self.precio / divisor
+        
+        # Acceso a array sin validar índice
+        precio_especial = lista_precios[10]
+        
+        # Conversión peligrosa
+        cantidad_string = str(self.cantidad)
+        numero_convertido = int(cantidad_string[5])  # Puede fallar si string es corto
+        
+        # None pointer potential
+        producto_temporal = None
+        valor_peligroso = producto_temporal.precio  # Va a fallar
+        
+        return resultado + precio_especial + numero_convertido

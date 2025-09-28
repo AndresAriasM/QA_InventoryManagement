@@ -403,3 +403,19 @@ class Inventario:
             'param4': param4,
             'param5': param5
         }
+    
+    def obtener_total_productos_version1(self):
+        """Calcula total de productos"""
+        return len(self.productos)
+
+    def obtener_total_productos_version2(self):
+        """Calcula total de productos"""  
+        return len(self.productos)
+
+    def get_cantidad_productos(self):
+        """Calcula total de productos"""
+        return len(self.productos)
+
+    def contar_productos_inventario(self):
+        """Calcula total de productos"""
+        return len(self.productos)
