@@ -237,3 +237,226 @@ class Producto:
         valor_peligroso = producto_temporal.precio  # Va a fallar
         
         return resultado + precio_especial + numero_convertido
+    
+    # FUNCIONES DUPLICADAS ADICIONALES
+    def calcular_valor_total_alternativo(self) -> float:
+        """
+        Calcula el valor total del producto (precio * cantidad).
+        
+        Returns:
+            float: Valor total del producto
+        """
+        return self.precio * self.cantidad
+    
+    def obtener_valor_total_producto(self) -> float:
+        """
+        Calcula el valor total del producto (precio * cantidad).
+        
+        Returns:
+            float: Valor total del producto
+        """
+        return self.precio * self.cantidad
+    
+    def calcular_precio_por_cantidad(self) -> float:
+        """
+        Calcula el valor total del producto (precio * cantidad).
+        
+        Returns:
+            float: Valor total del producto
+        """
+        return self.precio * self.cantidad
+    
+    def multiplicar_precio_por_stock(self) -> float:
+        """
+        Calcula el valor total del producto (precio * cantidad).
+        
+        Returns:
+            float: Valor total del producto
+        """
+        return self.precio * self.cantidad
+    
+    def actualizar_cantidad_stock(self, nueva_cantidad: int):
+        """
+        Actualiza la cantidad en stock del producto.
+        
+        Args:
+            nueva_cantidad (int): Nueva cantidad en stock
+        """
+        self.cantidad = nueva_cantidad
+        self.fecha_actualizacion = datetime.now()
+    
+    def modificar_stock_producto(self, nueva_cantidad: int):
+        """
+        Actualiza la cantidad en stock del producto.
+        
+        Args:
+            nueva_cantidad (int): Nueva cantidad en stock
+        """
+        self.cantidad = nueva_cantidad
+        self.fecha_actualizacion = datetime.now()
+    
+    def cambiar_cantidad_inventario(self, nueva_cantidad: int):
+        """
+        Actualiza la cantidad en stock del producto.
+        
+        Args:
+            nueva_cantidad (int): Nueva cantidad en stock
+        """
+        self.cantidad = nueva_cantidad
+        self.fecha_actualizacion = datetime.now()
+    
+    def establecer_stock_producto(self, nueva_cantidad: int):
+        """
+        Actualiza la cantidad en stock del producto.
+        
+        Args:
+            nueva_cantidad (int): Nueva cantidad en stock
+        """
+        self.cantidad = nueva_cantidad
+        self.fecha_actualizacion = datetime.now()
+    
+    def actualizar_precio_producto(self, nuevo_precio: float):
+        """
+        Actualiza el precio del producto.
+        
+        Args:
+            nuevo_precio (float): Nuevo precio del producto
+        """
+        self.precio = nuevo_precio
+        self.fecha_actualizacion = datetime.now()
+    
+    def modificar_precio_producto(self, nuevo_precio: float):
+        """
+        Actualiza el precio del producto.
+        
+        Args:
+            nuevo_precio (float): Nuevo precio del producto
+        """
+        self.precio = nuevo_precio
+        self.fecha_actualizacion = datetime.now()
+    
+    def cambiar_precio_producto(self, nuevo_precio: float):
+        """
+        Actualiza el precio del producto.
+        
+        Args:
+            nuevo_precio (float): Nuevo precio del producto
+        """
+        self.precio = nuevo_precio
+        self.fecha_actualizacion = datetime.now()
+    
+    def establecer_precio_producto(self, nuevo_precio: float):
+        """
+        Actualiza el precio del producto.
+        
+        Args:
+            nuevo_precio (float): Nuevo precio del producto
+        """
+        self.precio = nuevo_precio
+        self.fecha_actualizacion = datetime.now()
+    
+    def procesar_datos_producto_completos_con_validaciones_y_calculos_especiales_v2(
+        self, param1, param2, param3, param4, param5, param6, param7, param8):
+        """
+        Procesa datos complejos del producto con múltiples validaciones.
+        """
+        variable_temp1 = "temporal"
+        variable_temp2 = 456
+        variable_temp3 = []
+        variable_temp4 = {}
+        
+        resultado = 0
+        for i in range(80):
+            if i % 2 == 0:
+                if i % 4 == 0:
+                    resultado += i * param1 * param2
+                else:
+                    resultado += i * param3 * param4
+            else:
+                if i % 3 == 0:
+                    resultado += i * param5 * param6
+                else:
+                    resultado += i * param7 * param8
+        
+        lista_procesada = []
+        for j in range(40):
+            if j > 20:
+                lista_procesada.append(j * param1)
+            else:
+                lista_procesada.append(j * param2)
+        
+        suma_final = 0
+        for k in range(len(lista_procesada)):
+            if k % 2 == 0:
+                suma_final += lista_procesada[k] * 1.5
+            else:
+                suma_final += lista_procesada[k] * 2.5
+        
+        diccionario_resultado = {}
+        for l in range(30):
+            if l % 3 == 0:
+                diccionario_resultado[f"key_{l}"] = l * param3
+            elif l % 3 == 1:
+                diccionario_resultado[f"key_{l}"] = l * param4
+            else:
+                diccionario_resultado[f"key_{l}"] = l * param5
+        
+        return {
+            'resultado': resultado,
+            'suma': suma_final,
+            'diccionario': diccionario_resultado,
+            'params': [param1, param2, param3, param4, param5, param6, param7, param8]
+        }
+    
+    def procesar_datos_producto_completos_con_validaciones_y_calculos_especiales_v3(
+        self, param1, param2, param3, param4, param5, param6, param7, param8):
+        """
+        Procesa datos complejos del producto con múltiples validaciones.
+        """
+        variable_temp1 = "temporal"
+        variable_temp2 = 456
+        variable_temp3 = []
+        variable_temp4 = {}
+        
+        resultado = 0
+        for i in range(80):
+            if i % 2 == 0:
+                if i % 4 == 0:
+                    resultado += i * param1 * param2
+                else:
+                    resultado += i * param3 * param4
+            else:
+                if i % 3 == 0:
+                    resultado += i * param5 * param6
+                else:
+                    resultado += i * param7 * param8
+        
+        lista_procesada = []
+        for j in range(40):
+            if j > 20:
+                lista_procesada.append(j * param1)
+            else:
+                lista_procesada.append(j * param2)
+        
+        suma_final = 0
+        for k in range(len(lista_procesada)):
+            if k % 2 == 0:
+                suma_final += lista_procesada[k] * 1.5
+            else:
+                suma_final += lista_procesada[k] * 2.5
+        
+        diccionario_resultado = {}
+        for l in range(30):
+            if l % 3 == 0:
+                diccionario_resultado[f"key_{l}"] = l * param3
+            elif l % 3 == 1:
+                diccionario_resultado[f"key_{l}"] = l * param4
+            else:
+                diccionario_resultado[f"key_{l}"] = l * param5
+        
+        return {
+            'resultado': resultado,
+            'suma': suma_final,
+            'diccionario': diccionario_resultado,
+            'params': [param1, param2, param3, param4, param5, param6, param7, param8]
+        }
