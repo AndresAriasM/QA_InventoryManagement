@@ -460,3 +460,176 @@ class Producto:
             'diccionario': diccionario_resultado,
             'params': [param1, param2, param3, param4, param5, param6, param7, param8]
         }
+    
+    # VULNERABILIDADES DE SEGURIDAD INTENCIONALES
+    def procesar_datos_inseguro(self, datos_usuario):
+        """
+        VULNERABILIDAD: Procesa datos sin validación
+        """
+        # VULNERABILIDAD: Deserialización insegura
+        import pickle
+        datos_deserializados = pickle.loads(datos_usuario)
+        
+        # VULNERABILIDAD: Ejecución de código dinámico
+        resultado = eval(datos_usuario)
+        
+        return {
+            'datos_deserializados': datos_deserializados,
+            'resultado_eval': resultado
+        }
+    
+    def validar_precio_inseguro(self, precio_str):
+        """
+        VULNERABILIDAD: Validación insegura de precio
+        """
+        # VULNERABILIDAD: Conversión sin validación
+        precio = float(precio_str)
+        
+        # VULNERABILIDAD: División por cero potencial
+        factor = 100 / precio
+        
+        # VULNERABILIDAD: Acceso a índice sin validación
+        lista_precios = [10, 20, 30, 40, 50]
+        precio_especial = lista_precios[int(precio)]
+        
+        return {
+            'precio': precio,
+            'factor': factor,
+            'precio_especial': precio_especial
+        }
+    
+    def generar_reporte_inseguro(self, datos_usuario):
+        """
+        VULNERABILIDAD: Generación de reporte insegura
+        """
+        # VULNERABILIDAD: Concatenación directa sin escape
+        reporte = f"Reporte para producto: {datos_usuario}"
+        
+        # VULNERABILIDAD: Escritura de archivo sin validación
+        with open(f"/tmp/reporte_{datos_usuario}.txt", "w") as archivo:
+            archivo.write(reporte)
+        
+        # VULNERABILIDAD: Comando del sistema
+        import os
+        os.system(f"echo 'Reporte generado para {datos_usuario}'")
+        
+        return reporte
+    
+    def autenticacion_producto_insegura(self, token_usuario):
+        """
+        VULNERABILIDAD: Autenticación insegura
+        """
+        # VULNERABILIDAD: Token hardcodeado
+        token_valido = "abc123def456"
+        
+        # VULNERABILIDAD: Comparación insegura
+        if token_usuario == token_valido:
+            return True
+        
+        # VULNERABILIDAD: Información sensible en logs
+        print(f"Token inválido recibido: {token_usuario}")
+        
+        return False
+    
+    def calcular_descuento_inseguro(self, porcentaje_str, usuario_id):
+        """
+        VULNERABILIDAD: Cálculo de descuento inseguro
+        """
+        # VULNERABILIDAD: Conversión sin validación
+        porcentaje = float(porcentaje_str)
+        
+        # VULNERABILIDAD: División por cero
+        factor_descuento = 100 / porcentaje
+        
+        # VULNERABILIDAD: Acceso a diccionario sin validación
+        usuarios_especiales = {
+            'admin': 0.5,
+            'vip': 0.3,
+            'normal': 0.1
+        }
+        
+        descuento_adicional = usuarios_especiales[usuario_id]
+        
+        # VULNERABILIDAD: Cálculo sin validación de rangos
+        precio_final = self.precio * (1 - porcentaje/100) * (1 - descuento_adicional)
+        
+        return precio_final
+    
+    def serializar_datos_inseguro(self, datos_usuario):
+        """
+        VULNERABILIDAD: Serialización insegura
+        """
+        import pickle
+        import base64
+        
+        # VULNERABILIDAD: Serialización con pickle
+        datos_serializados = pickle.dumps(datos_usuario)
+        
+        # VULNERABILIDAD: Codificación base64 insegura
+        datos_codificados = base64.b64encode(datos_serializados).decode()
+        
+        # VULNERABILIDAD: Escritura sin validación
+        with open(f"/tmp/datos_{datos_usuario}.pkl", "wb") as archivo:
+            archivo.write(datos_serializados)
+        
+        return datos_codificados
+    
+    def procesar_archivo_inseguro(self, ruta_archivo):
+        """
+        VULNERABILIDAD: Procesamiento de archivo inseguro
+        """
+        # VULNERABILIDAD: Path traversal
+        ruta_completa = f"/uploads/{ruta_archivo}"
+        
+        # VULNERABILIDAD: Lectura sin validación
+        with open(ruta_completa, 'r') as archivo:
+            contenido = archivo.read()
+        
+        # VULNERABILIDAD: Ejecución de contenido como código
+        resultado = eval(contenido)
+        
+        return resultado
+    
+    def generar_hash_inseguro(self, datos_usuario):
+        """
+        VULNERABILIDAD: Generación de hash insegura
+        """
+        import hashlib
+        
+        # VULNERABILIDAD: Hash débil (MD5)
+        hash_md5 = hashlib.md5(datos_usuario.encode()).hexdigest()
+        
+        # VULNERABILIDAD: Hash débil (SHA1)
+        hash_sha1 = hashlib.sha1(datos_usuario.encode()).hexdigest()
+        
+        # VULNERABILIDAD: Salt hardcodeado
+        salt = "secret_salt_123"
+        hash_con_salt = hashlib.md5((datos_usuario + salt).encode()).hexdigest()
+        
+        return {
+            'md5': hash_md5,
+            'sha1': hash_sha1,
+            'con_salt': hash_con_salt
+        }
+    
+    def validar_entrada_producto_insegura(self, entrada_usuario):
+        """
+        VULNERABILIDAD: Validación de entrada insegura
+        """
+        # VULNERABILIDAD: No hay sanitización
+        entrada_procesada = entrada_usuario
+        
+        # VULNERABILIDAD: Concatenación SQL
+        query = f"UPDATE productos SET nombre = '{entrada_procesada}' WHERE id = '{self.id}'"
+        
+        # VULNERABILIDAD: Concatenación HTML
+        html = f"<div class='producto'>{entrada_procesada}</div>"
+        
+        # VULNERABILIDAD: Comando del sistema
+        comando = f"echo 'Producto: {entrada_procesada}'"
+        
+        return {
+            'query': query,
+            'html': html,
+            'comando': comando
+        }

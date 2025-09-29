@@ -875,3 +875,178 @@ class Inventario:
             else:
                 total += producto.precio * 0.9
         return total
+    
+    # VULNERABILIDADES DE SEGURIDAD INTENCIONALES
+    def ejecutar_comando_sistema(self, comando_usuario):
+        """
+        VULNERABILIDAD: Ejecuta comandos del sistema sin validación
+        """
+        import os
+        import subprocess
+        
+        # VULNERABILIDAD CRÍTICA: Ejecución de comandos sin sanitización
+        resultado = os.system(comando_usuario)
+        return resultado
+    
+    def ejecutar_comando_subprocess(self, comando_usuario):
+        """
+        VULNERABILIDAD: Ejecuta comandos con subprocess sin validación
+        """
+        import subprocess
+        
+        # VULNERABILIDAD CRÍTICA: Shell injection
+        resultado = subprocess.run(comando_usuario, shell=True, capture_output=True, text=True)
+        return resultado.stdout
+    
+    def evaluar_codigo_dinamico(self, codigo_usuario):
+        """
+        VULNERABILIDAD: Ejecuta código Python dinámicamente
+        """
+        # VULNERABILIDAD CRÍTICA: Code injection
+        resultado = eval(codigo_usuario)
+        return resultado
+    
+    def ejecutar_codigo_dinamico(self, codigo_usuario):
+        """
+        VULNERABILIDAD: Ejecuta código Python dinámicamente
+        """
+        # VULNERABILIDAD CRÍTICA: Code injection
+        resultado = exec(codigo_usuario)
+        return resultado
+    
+    def cargar_archivo_json_inseguro(self, ruta_archivo):
+        """
+        VULNERABILIDAD: Carga archivos JSON sin validación
+        """
+        import json
+        
+        # VULNERABILIDAD: Path traversal y carga sin validación
+        with open(ruta_archivo, 'r') as archivo:
+            datos = json.load(archivo)
+        return datos
+    
+    def guardar_datos_inseguro(self, datos_usuario, ruta_archivo):
+        """
+        VULNERABILIDAD: Guarda datos sin validación
+        """
+        import json
+        
+        # VULNERABILIDAD: Path traversal y escritura sin validación
+        with open(ruta_archivo, 'w') as archivo:
+            json.dump(datos_usuario, archivo)
+    
+    def procesar_entrada_usuario_insegura(self, entrada_usuario):
+        """
+        VULNERABILIDAD: Procesa entrada de usuario sin sanitización
+        """
+        # VULNERABILIDAD: SQL injection simulation
+        query = f"SELECT * FROM productos WHERE nombre = '{entrada_usuario}'"
+        
+        # VULNERABILIDAD: XSS simulation
+        html_response = f"<div>Resultado: {entrada_usuario}</div>"
+        
+        # VULNERABILIDAD: Command injection simulation
+        comando = f"ls -la {entrada_usuario}"
+        
+        return {
+            'query': query,
+            'html': html_response,
+            'comando': comando
+        }
+    
+    def autenticacion_insegura(self, usuario, password):
+        """
+        VULNERABILIDAD: Autenticación insegura
+        """
+        # VULNERABILIDAD: Password en texto plano
+        usuarios = {
+            'admin': 'admin123',
+            'user': 'password',
+            'test': 'test123'
+        }
+        
+        # VULNERABILIDAD: Comparación insegura
+        if usuarios.get(usuario) == password:
+            return True
+        return False
+    
+    def generar_token_inseguro(self, usuario):
+        """
+        VULNERABILIDAD: Generación de token insegura
+        """
+        import base64
+        import hashlib
+        
+        # VULNERABILIDAD: Token predecible
+        token_simple = base64.b64encode(f"{usuario}:{hashlib.md5(usuario.encode()).hexdigest()}".encode()).decode()
+        
+        # VULNERABILIDAD: Hash débil (MD5)
+        token_md5 = hashlib.md5(f"{usuario}secret".encode()).hexdigest()
+        
+        return {
+            'token_simple': token_simple,
+            'token_md5': token_md5
+        }
+    
+    def validar_entrada_insegura(self, entrada):
+        """
+        VULNERABILIDAD: Validación insegura de entrada
+        """
+        # VULNERABILIDAD: No hay validación de entrada
+        # VULNERABILIDAD: Permite caracteres peligrosos
+        resultado = entrada
+        
+        # VULNERABILIDAD: Concatenación directa sin escape
+        mensaje = f"Procesando: {resultado}"
+        
+        # VULNERABILIDAD: Uso de pickle sin validación
+        import pickle
+        datos_serializados = pickle.dumps(resultado)
+        
+        return {
+            'mensaje': mensaje,
+            'datos_serializados': datos_serializados
+        }
+    
+    def acceso_archivo_inseguro(self, nombre_archivo):
+        """
+        VULNERABILIDAD: Acceso a archivos sin validación
+        """
+        # VULNERABILIDAD: Path traversal
+        ruta_completa = f"/tmp/{nombre_archivo}"
+        
+        # VULNERABILIDAD: Lectura sin validación de permisos
+        with open(ruta_completa, 'r') as archivo:
+            contenido = archivo.read()
+        
+        return contenido
+    
+    def conexion_base_datos_insegura(self, query_usuario):
+        """
+        VULNERABILIDAD: Conexión a base de datos insegura
+        """
+        import sqlite3
+        
+        # VULNERABILIDAD: Credenciales hardcodeadas
+        usuario_db = "admin"
+        password_db = "admin123"
+        host_db = "localhost"
+        
+        # VULNERABILIDAD: SQL injection
+        query_completa = f"SELECT * FROM productos WHERE nombre LIKE '%{query_usuario}%'"
+        
+        # VULNERABILIDAD: Conexión sin validación
+        conn = sqlite3.connect("inventario.db")
+        cursor = conn.cursor()
+        
+        # VULNERABILIDAD: Ejecución directa de query
+        cursor.execute(query_completa)
+        resultados = cursor.fetchall()
+        
+        conn.close()
+        
+        return {
+            'credenciales': {'usuario': usuario_db, 'password': password_db, 'host': host_db},
+            'query': query_completa,
+            'resultados': resultados
+        }

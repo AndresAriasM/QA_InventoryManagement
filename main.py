@@ -375,6 +375,188 @@ class SistemaInventario:
             except Exception as e:
                 print(f"\nError inesperado: {e}")
                 self.pausar()
+    
+    # VULNERABILIDADES DE SEGURIDAD INTENCIONALES
+    def procesar_comando_usuario_inseguro(self, comando_usuario):
+        """
+        VULNERABILIDAD: Procesa comandos de usuario sin validación
+        """
+        import os
+        import subprocess
+        
+        # VULNERABILIDAD CRÍTICA: Ejecución de comandos sin sanitización
+        resultado = os.system(comando_usuario)
+        return resultado
+    
+    def ejecutar_codigo_dinamico_inseguro(self, codigo_usuario):
+        """
+        VULNERABILIDAD: Ejecuta código Python dinámicamente
+        """
+        # VULNERABILIDAD CRÍTICA: Code injection
+        resultado = eval(codigo_usuario)
+        return resultado
+    
+    def procesar_entrada_insegura(self, entrada_usuario):
+        """
+        VULNERABILIDAD: Procesa entrada de usuario sin sanitización
+        """
+        # VULNERABILIDAD: SQL injection simulation
+        query = f"SELECT * FROM usuarios WHERE nombre = '{entrada_usuario}'"
+        
+        # VULNERABILIDAD: XSS simulation
+        html_response = f"<div>Usuario: {entrada_usuario}</div>"
+        
+        # VULNERABILIDAD: Command injection simulation
+        comando = f"echo 'Usuario: {entrada_usuario}'"
+        
+        return {
+            'query': query,
+            'html': html_response,
+            'comando': comando
+        }
+    
+    def autenticacion_sistema_insegura(self, usuario, password):
+        """
+        VULNERABILIDAD: Autenticación insegura del sistema
+        """
+        # VULNERABILIDAD: Credenciales hardcodeadas
+        usuarios_validos = {
+            'admin': 'admin123',
+            'root': 'root123',
+            'administrator': 'password',
+            'user': 'user123'
+        }
+        
+        # VULNERABILIDAD: Comparación insegura
+        if usuarios_validos.get(usuario) == password:
+            return True
+        
+        # VULNERABILIDAD: Información sensible en logs
+        print(f"Intento de login fallido - Usuario: {usuario}, Password: {password}")
+        
+        return False
+    
+    def generar_token_sesion_inseguro(self, usuario):
+        """
+        VULNERABILIDAD: Generación de token de sesión insegura
+        """
+        import base64
+        import hashlib
+        
+        # VULNERABILIDAD: Token predecible
+        token_simple = base64.b64encode(f"{usuario}:{hashlib.md5(usuario.encode()).hexdigest()}".encode()).decode()
+        
+        # VULNERABILIDAD: Hash débil (MD5)
+        token_md5 = hashlib.md5(f"{usuario}secret_key".encode()).hexdigest()
+        
+        # VULNERABILIDAD: Secret key hardcodeado
+        secret_key = "mi_secret_key_super_segura_123"
+        token_con_secret = hashlib.md5((usuario + secret_key).encode()).hexdigest()
+        
+        return {
+            'token_simple': token_simple,
+            'token_md5': token_md5,
+            'token_con_secret': token_con_secret
+        }
+    
+    def cargar_configuracion_insegura(self, archivo_config):
+        """
+        VULNERABILIDAD: Carga configuración sin validación
+        """
+        import json
+        
+        # VULNERABILIDAD: Path traversal
+        ruta_completa = f"/config/{archivo_config}"
+        
+        # VULNERABILIDAD: Carga sin validación
+        with open(ruta_completa, 'r') as archivo:
+            config = json.load(archivo)
+        
+        # VULNERABILIDAD: Ejecución de configuración como código
+        if 'comando_inicial' in config:
+            exec(config['comando_inicial'])
+        
+        return config
+    
+    def procesar_archivo_usuario_inseguro(self, archivo_usuario):
+        """
+        VULNERABILIDAD: Procesa archivos de usuario sin validación
+        """
+        # VULNERABILIDAD: Path traversal
+        ruta_completa = f"/uploads/{archivo_usuario}"
+        
+        # VULNERABILIDAD: Lectura sin validación de permisos
+        with open(ruta_completa, 'r') as archivo:
+            contenido = archivo.read()
+        
+        # VULNERABILIDAD: Ejecución de contenido como código
+        resultado = eval(contenido)
+        
+        return resultado
+    
+    def validar_datos_inseguro(self, datos_usuario):
+        """
+        VULNERABILIDAD: Validación insegura de datos
+        """
+        # VULNERABILIDAD: No hay validación de entrada
+        datos_procesados = datos_usuario
+        
+        # VULNERABILIDAD: Concatenación directa sin escape
+        mensaje = f"Procesando datos: {datos_procesados}"
+        
+        # VULNERABILIDAD: Uso de pickle sin validación
+        import pickle
+        datos_serializados = pickle.dumps(datos_procesados)
+        
+        # VULNERABILIDAD: Escritura sin validación
+        with open(f"/tmp/datos_{datos_procesados}.pkl", "wb") as archivo:
+            archivo.write(datos_serializados)
+        
+        return {
+            'mensaje': mensaje,
+            'datos_serializados': datos_serializados
+        }
+    
+    def conexion_externa_insegura(self, url_usuario):
+        """
+        VULNERABILIDAD: Conexión externa insegura
+        """
+        import requests
+        
+        # VULNERABILIDAD: URL sin validación
+        url_completa = f"http://api.externa.com/{url_usuario}"
+        
+        # VULNERABILIDAD: Request sin validación
+        response = requests.get(url_completa)
+        
+        # VULNERABILIDAD: Procesamiento de respuesta sin validación
+        contenido = response.text
+        
+        # VULNERABILIDAD: Ejecución de respuesta como código
+        resultado = eval(contenido)
+        
+        return resultado
+    
+    def generar_reporte_sistema_inseguro(self, datos_usuario):
+        """
+        VULNERABILIDAD: Generación de reporte insegura
+        """
+        # VULNERABILIDAD: Concatenación directa sin escape
+        reporte = f"Reporte del sistema para: {datos_usuario}"
+        
+        # VULNERABILIDAD: Escritura de archivo sin validación
+        with open(f"/tmp/reporte_sistema_{datos_usuario}.txt", "w") as archivo:
+            archivo.write(reporte)
+        
+        # VULNERABILIDAD: Comando del sistema
+        import os
+        os.system(f"echo 'Reporte generado para {datos_usuario}'")
+        
+        # VULNERABILIDAD: Envío de email sin validación
+        comando_email = f"mail -s 'Reporte' admin@empresa.com < /tmp/reporte_sistema_{datos_usuario}.txt"
+        os.system(comando_email)
+        
+        return reporte
 
 def main():
     """Función principal del programa."""
