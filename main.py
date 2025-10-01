@@ -12,17 +12,10 @@ Versión: 1.0
 
 import os
 import sys
-import random
-import threading
-import asyncio
-import sqlite3
-import requests
-from datetime import timedelta
-from collections import defaultdict
-import numpy as np  
+import logging
 from typing import Optional
 from producto import Producto
-from inventario import Inventario
+from inventario import Inventario, SecurityError
 
 class SistemaInventario:
     """
@@ -35,8 +28,20 @@ class SistemaInventario:
         self.umbral_stock_bajo = 10
     
     def limpiar_pantalla(self):
-        """Limpia la pantalla de la consola."""
-        os.system('cls' if os.name == 'nt' else 'clear')
+        """Limpia la pantalla de la consola de forma segura."""
+        import subprocess
+        import shlex
+        
+        try:
+            if os.name == 'nt':
+                # Windows - usar subprocess de forma segura
+                subprocess.run(['cls'], shell=False, check=True)
+            else:
+                # Unix/Linux - usar subprocess de forma segura
+                subprocess.run(['clear'], shell=False, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            # Fallback seguro - solo imprimir líneas en blanco
+            print('\n' * 50)
     
     def mostrar_menu_principal(self):
         """Muestra el menú principal del sistema."""
@@ -61,37 +66,177 @@ class SistemaInventario:
         """Pausa la ejecución hasta que el usuario presione Enter."""
         input("\nPresione Enter para continuar...")
     
-    def obtener_entrada(self, mensaje: str, tipo=str) -> any:
+    def obtener_entrada(self, mensaje: str, tipo=str, validaciones=None) -> any:
         """
-        Obtiene entrada del usuario con validación.
+        Obtiene entrada del usuario con validación y sanitización de seguridad.
         
         Args:
             mensaje (str): Mensaje a mostrar al usuario
             tipo: Tipo de dato esperado (str, int, float)
+            validaciones (dict): Diccionario con validaciones adicionales
             
         Returns:
             any: Valor ingresado por el usuario
         """
+        if validaciones is None:
+            validaciones = {}
+            
         while True:
             try:
                 entrada = input(mensaje)
+                
+                # Sanitización de entrada
+                entrada_sanitizada = self._sanitizar_entrada(entrada)
+                
                 if tipo == str:
-                    return entrada.strip()
+                    valor = entrada_sanitizada.strip()
+                    if not valor:
+                        print("Error: No se puede ingresar un valor vacío.")
+                        continue
+                    
+                    # Validación adicional de seguridad para strings
+                    if not self._validar_string_seguro(valor):
+                        print("Error: La entrada contiene caracteres no permitidos.")
+                        continue
+                        
                 elif tipo == int:
-                    return int(entrada)
+                    valor = int(entrada_sanitizada)
                 elif tipo == float:
-                    return float(entrada)
+                    valor = float(entrada_sanitizada)
+                else:
+                    valor = entrada_sanitizada
+                
+                # Aplicar validaciones adicionales
+                if 'minimo' in validaciones and valor < validaciones['minimo']:
+                    print(f"Error: El valor debe ser mayor o igual a {validaciones['minimo']}.")
+                    continue
+                    
+                if 'maximo' in validaciones and valor > validaciones['maximo']:
+                    print(f"Error: El valor debe ser menor o igual a {validaciones['maximo']}.")
+                    continue
+                    
+                if 'longitud_minima' in validaciones and len(str(valor)) < validaciones['longitud_minima']:
+                    print(f"Error: El valor debe tener al menos {validaciones['longitud_minima']} caracteres.")
+                    continue
+                    
+                if 'longitud_maxima' in validaciones and len(str(valor)) > validaciones['longitud_maxima']:
+                    print(f"Error: El valor no puede tener más de {validaciones['longitud_maxima']} caracteres.")
+                    continue
+                
+                return valor
+                
             except ValueError:
                 print("Error: Por favor ingrese un valor válido.")
             except KeyboardInterrupt:
                 print("\nOperación cancelada.")
                 return None
     
+    def _sanitizar_entrada(self, entrada: str) -> str:
+        """
+        Sanitiza la entrada del usuario para prevenir inyecciones.
+        
+        Args:
+            entrada: Entrada del usuario
+            
+        Returns:
+            str: Entrada sanitizada
+        """
+        if not isinstance(entrada, str):
+            return str(entrada)
+        
+        # Remover caracteres de control peligrosos
+        caracteres_peligrosos = ['\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', 
+                                '\x08', '\x0b', '\x0c', '\x0e', '\x0f', '\x10', '\x11', '\x12', 
+                                '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', 
+                                '\x1b', '\x1c', '\x1d', '\x1e', '\x1f']
+        
+        entrada_sanitizada = entrada
+        for char in caracteres_peligrosos:
+            entrada_sanitizada = entrada_sanitizada.replace(char, '')
+        
+        # Limitar longitud máxima
+        if len(entrada_sanitizada) > 1000:
+            entrada_sanitizada = entrada_sanitizada[:1000]
+        
+        return entrada_sanitizada
+    
+    def _validar_string_seguro(self, texto: str) -> bool:
+        """
+        Valida que un string sea seguro y no contenga patrones peligrosos.
+        
+        Args:
+            texto: Texto a validar
+            
+        Returns:
+            bool: True si es seguro, False si contiene patrones peligrosos
+        """
+        if not isinstance(texto, str):
+            return False
+        
+        # Patrones peligrosos a detectar
+        patrones_peligrosos = [
+            r'<script.*?>.*?</script>',  # Scripts HTML
+            r'javascript:',              # JavaScript
+            r'vbscript:',               # VBScript
+            r'on\w+\s*=',              # Event handlers
+            r'data:text/html',         # Data URLs
+            r'file://',                 # File URLs
+            r'ftp://',                  # FTP URLs
+            r'\.\./',                   # Path traversal
+            r'\.\.\\',                  # Path traversal Windows
+            r'<iframe',                 # iFrames
+            r'<object',                 # Objects
+            r'<embed',                  # Embeds
+            r'<form',                   # Forms
+            r'<input',                  # Inputs
+            r'<meta',                   # Meta tags
+            r'<link',                   # Link tags
+            r'<style',                  # Style tags
+            r'expression\s*\(',         # CSS expressions
+            r'url\s*\(',                # CSS URLs
+            r'@import',                 # CSS imports
+            r'<.*?>',                   # HTML tags básicos
+        ]
+        
+        import re
+        texto_lower = texto.lower()
+        
+        for patron in patrones_peligrosos:
+            if re.search(patron, texto_lower, re.IGNORECASE):
+                return False
+        
+        return True
+    
+    def _log_error_seguro(self, mensaje: str, error: Exception):
+        """
+        Registra errores de forma segura sin exponer información sensible.
+        
+        Args:
+            mensaje: Mensaje descriptivo del error
+            error: Excepción capturada
+        """
+        # Configurar logging seguro
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler('sistema_errors.log'),
+                logging.StreamHandler()
+            ]
+        )
+        
+        # Log solo información segura
+        logging.error(f"{mensaje}: {type(error).__name__}")
+    
     def agregar_producto(self):
         """Permite agregar un nuevo producto al inventario."""
         print("\n--- AGREGAR PRODUCTO ---")
         
-        id_producto = self.obtener_entrada("ID del producto: ")
+        # Validar ID del producto
+        id_producto = self.obtener_entrada("ID del producto: ", str, {
+            'longitud_minima': 1,
+            'longitud_maxima': 50
+        })
         if id_producto is None:
             return
         
@@ -101,40 +246,48 @@ class SistemaInventario:
             self.pausar()
             return
         
-        nombre = self.obtener_entrada("Nombre del producto: ")
+        # Validar nombre del producto
+        nombre = self.obtener_entrada("Nombre del producto: ", str, {
+            'longitud_minima': 1,
+            'longitud_maxima': 100
+        })
         if nombre is None:
             return
         
-        categoria = self.obtener_entrada("Categoría: ")
+        # Validar categoría
+        categoria = self.obtener_entrada("Categoría: ", str, {
+            'longitud_minima': 1,
+            'longitud_maxima': 50
+        })
         if categoria is None:
             return
         
-        precio = self.obtener_entrada("Precio: $", float)
+        # Validar precio
+        precio = self.obtener_entrada("Precio: $", float, {
+            'minimo': 0.01,
+            'maximo': 999999.99
+        })
         if precio is None:
             return
         
-        cantidad = self.obtener_entrada("Cantidad en stock: ", int)
+        # Validar cantidad
+        cantidad = self.obtener_entrada("Cantidad en stock: ", int, {
+            'minimo': 0,
+            'maximo': 999999
+        })
         if cantidad is None:
             return
         
-        # Validaciones
-        if precio < 0:
-            print("Error: El precio no puede ser negativo.")
-            self.pausar()
-            return
-        
-        if cantidad < 0:
-            print("Error: La cantidad no puede ser negativa.")
-            self.pausar()
-            return
-        
         # Crear y agregar el producto
-        producto = Producto(id_producto, nombre, categoria, precio, cantidad)
-        
-        if self.inventario.agregar_producto(producto):
-            print(f"\n✓ Producto '{nombre}' agregado exitosamente.")
-        else:
-            print(f"\n✗ Error al agregar el producto.")
+        try:
+            producto = Producto(id_producto, nombre, categoria, precio, cantidad)
+            
+            if self.inventario.agregar_producto(producto):
+                print(f"\n✓ Producto '{nombre}' agregado exitosamente.")
+            else:
+                print(f"\n✗ Error al agregar el producto.")
+        except Exception as e:
+            print(f"\n✗ Error al crear el producto: {e}")
         
         self.pausar()
     
@@ -169,7 +322,10 @@ class SistemaInventario:
         """Permite actualizar el stock de un producto."""
         print("\n--- ACTUALIZAR STOCK ---")
         
-        id_producto = self.obtener_entrada("ID del producto: ")
+        id_producto = self.obtener_entrada("ID del producto: ", str, {
+            'longitud_minima': 1,
+            'longitud_maxima': 50
+        })
         if id_producto is None:
             return
         
@@ -180,19 +336,20 @@ class SistemaInventario:
             return
         
         print(f"\nProducto actual: {producto}")
-        nueva_cantidad = self.obtener_entrada(f"Nueva cantidad (actual: {producto.cantidad}): ", int)
+        nueva_cantidad = self.obtener_entrada(f"Nueva cantidad (actual: {producto.cantidad}): ", int, {
+            'minimo': 0,
+            'maximo': 999999
+        })
         if nueva_cantidad is None:
             return
         
-        if nueva_cantidad < 0:
-            print("Error: La cantidad no puede ser negativa.")
-            self.pausar()
-            return
-        
-        if self.inventario.actualizar_stock(id_producto, nueva_cantidad):
-            print(f"\n✓ Stock actualizado exitosamente a {nueva_cantidad} unidades.")
-        else:
-            print(f"\n✗ Error al actualizar el stock.")
+        try:
+            if self.inventario.actualizar_stock(id_producto, nueva_cantidad):
+                print(f"\n✓ Stock actualizado exitosamente a {nueva_cantidad} unidades.")
+            else:
+                print(f"\n✗ Error al actualizar el stock.")
+        except Exception as e:
+            print(f"\n✗ Error al actualizar el stock: {e}")
         
         self.pausar()
     
@@ -200,7 +357,10 @@ class SistemaInventario:
         """Permite actualizar el precio de un producto."""
         print("\n--- ACTUALIZAR PRECIO ---")
         
-        id_producto = self.obtener_entrada("ID del producto: ")
+        id_producto = self.obtener_entrada("ID del producto: ", str, {
+            'longitud_minima': 1,
+            'longitud_maxima': 50
+        })
         if id_producto is None:
             return
         
@@ -211,19 +371,20 @@ class SistemaInventario:
             return
         
         print(f"\nProducto actual: {producto}")
-        nuevo_precio = self.obtener_entrada(f"Nuevo precio (actual: ${producto.precio:.2f}): $", float)
+        nuevo_precio = self.obtener_entrada(f"Nuevo precio (actual: ${producto.precio:.2f}): $", float, {
+            'minimo': 0.01,
+            'maximo': 999999.99
+        })
         if nuevo_precio is None:
             return
         
-        if nuevo_precio < 0:
-            print("Error: El precio no puede ser negativo.")
-            self.pausar()
-            return
-        
-        if self.inventario.actualizar_precio(id_producto, nuevo_precio):
-            print(f"\n✓ Precio actualizado exitosamente a ${nuevo_precio:.2f}.")
-        else:
-            print(f"\n✗ Error al actualizar el precio.")
+        try:
+            if self.inventario.actualizar_precio(id_producto, nuevo_precio):
+                print(f"\n✓ Precio actualizado exitosamente a ${nuevo_precio:.2f}.")
+            else:
+                print(f"\n✗ Error al actualizar el precio.")
+        except Exception as e:
+            print(f"\n✗ Error al actualizar el precio: {e}")
         
         self.pausar()
     
@@ -372,191 +533,17 @@ class SistemaInventario:
             except KeyboardInterrupt:
                 print("\n\n¡Gracias por usar el Sistema de Gestión de Inventarios!")
                 break
-            except Exception as e:
-                print(f"\nError inesperado: {e}")
+            except (ValueError, TypeError, AttributeError) as e:
+                print(f"\nError de datos: {e}")
                 self.pausar()
-    
-    # VULNERABILIDADES DE SEGURIDAD INTENCIONALES
-    def procesar_comando_usuario_inseguro(self, comando_usuario):
-        """
-        VULNERABILIDAD: Procesa comandos de usuario sin validación
-        """
-        import os
-        import subprocess
-        
-        # VULNERABILIDAD CRÍTICA: Ejecución de comandos sin sanitización
-        resultado = os.system(comando_usuario)
-        return resultado
-    
-    def ejecutar_codigo_dinamico_inseguro(self, codigo_usuario):
-        """
-        VULNERABILIDAD: Ejecuta código Python dinámicamente
-        """
-        # VULNERABILIDAD CRÍTICA: Code injection
-        resultado = eval(codigo_usuario)
-        return resultado
-    
-    def procesar_entrada_insegura(self, entrada_usuario):
-        """
-        VULNERABILIDAD: Procesa entrada de usuario sin sanitización
-        """
-        # VULNERABILIDAD: SQL injection simulation
-        query = f"SELECT * FROM usuarios WHERE nombre = '{entrada_usuario}'"
-        
-        # VULNERABILIDAD: XSS simulation
-        html_response = f"<div>Usuario: {entrada_usuario}</div>"
-        
-        # VULNERABILIDAD: Command injection simulation
-        comando = f"echo 'Usuario: {entrada_usuario}'"
-        
-        return {
-            'query': query,
-            'html': html_response,
-            'comando': comando
-        }
-    
-    def autenticacion_sistema_insegura(self, usuario, password):
-        """
-        VULNERABILIDAD: Autenticación insegura del sistema
-        """
-        # VULNERABILIDAD: Credenciales hardcodeadas
-        usuarios_validos = {
-            'admin': 'admin123',
-            'root': 'root123',
-            'administrator': 'password',
-            'user': 'user123'
-        }
-        
-        # VULNERABILIDAD: Comparación insegura
-        if usuarios_validos.get(usuario) == password:
-            return True
-        
-        # VULNERABILIDAD: Información sensible en logs
-        print(f"Intento de login fallido - Usuario: {usuario}, Password: {password}")
-        
-        return False
-    
-    def generar_token_sesion_inseguro(self, usuario):
-        """
-        VULNERABILIDAD: Generación de token de sesión insegura
-        """
-        import base64
-        import hashlib
-        
-        # VULNERABILIDAD: Token predecible
-        token_simple = base64.b64encode(f"{usuario}:{hashlib.md5(usuario.encode()).hexdigest()}".encode()).decode()
-        
-        # VULNERABILIDAD: Hash débil (MD5)
-        token_md5 = hashlib.md5(f"{usuario}secret_key".encode()).hexdigest()
-        
-        # VULNERABILIDAD: Secret key hardcodeado
-        secret_key = "mi_secret_key_super_segura_123"
-        token_con_secret = hashlib.md5((usuario + secret_key).encode()).hexdigest()
-        
-        return {
-            'token_simple': token_simple,
-            'token_md5': token_md5,
-            'token_con_secret': token_con_secret
-        }
-    
-    def cargar_configuracion_insegura(self, archivo_config):
-        """
-        VULNERABILIDAD: Carga configuración sin validación
-        """
-        import json
-        
-        # VULNERABILIDAD: Path traversal
-        ruta_completa = f"/config/{archivo_config}"
-        
-        # VULNERABILIDAD: Carga sin validación
-        with open(ruta_completa, 'r') as archivo:
-            config = json.load(archivo)
-        
-        # VULNERABILIDAD: Ejecución de configuración como código
-        if 'comando_inicial' in config:
-            exec(config['comando_inicial'])
-        
-        return config
-    
-    def procesar_archivo_usuario_inseguro(self, archivo_usuario):
-        """
-        VULNERABILIDAD: Procesa archivos de usuario sin validación
-        """
-        # VULNERABILIDAD: Path traversal
-        ruta_completa = f"/uploads/{archivo_usuario}"
-        
-        # VULNERABILIDAD: Lectura sin validación de permisos
-        with open(ruta_completa, 'r') as archivo:
-            contenido = archivo.read()
-        
-        # VULNERABILIDAD: Ejecución de contenido como código
-        resultado = eval(contenido)
-        
-        return resultado
-    
-    def validar_datos_inseguro(self, datos_usuario):
-        """
-        VULNERABILIDAD: Validación insegura de datos
-        """
-        # VULNERABILIDAD: No hay validación de entrada
-        datos_procesados = datos_usuario
-        
-        # VULNERABILIDAD: Concatenación directa sin escape
-        mensaje = f"Procesando datos: {datos_procesados}"
-        
-        # VULNERABILIDAD: Uso de pickle sin validación
-        import pickle
-        datos_serializados = pickle.dumps(datos_procesados)
-        
-        # VULNERABILIDAD: Escritura sin validación
-        with open(f"/tmp/datos_{datos_procesados}.pkl", "wb") as archivo:
-            archivo.write(datos_serializados)
-        
-        return {
-            'mensaje': mensaje,
-            'datos_serializados': datos_serializados
-        }
-    
-    def conexion_externa_insegura(self, url_usuario):
-        """
-        VULNERABILIDAD: Conexión externa insegura
-        """
-        import requests
-        
-        # VULNERABILIDAD: URL sin validación
-        url_completa = f"http://api.externa.com/{url_usuario}"
-        
-        # VULNERABILIDAD: Request sin validación
-        response = requests.get(url_completa)
-        
-        # VULNERABILIDAD: Procesamiento de respuesta sin validación
-        contenido = response.text
-        
-        # VULNERABILIDAD: Ejecución de respuesta como código
-        resultado = eval(contenido)
-        
-        return resultado
-    
-    def generar_reporte_sistema_inseguro(self, datos_usuario):
-        """
-        VULNERABILIDAD: Generación de reporte insegura
-        """
-        # VULNERABILIDAD: Concatenación directa sin escape
-        reporte = f"Reporte del sistema para: {datos_usuario}"
-        
-        # VULNERABILIDAD: Escritura de archivo sin validación
-        with open(f"/tmp/reporte_sistema_{datos_usuario}.txt", "w") as archivo:
-            archivo.write(reporte)
-        
-        # VULNERABILIDAD: Comando del sistema
-        import os
-        os.system(f"echo 'Reporte generado para {datos_usuario}'")
-        
-        # VULNERABILIDAD: Envío de email sin validación
-        comando_email = f"mail -s 'Reporte' admin@empresa.com < /tmp/reporte_sistema_{datos_usuario}.txt"
-        os.system(comando_email)
-        
-        return reporte
+            except (OSError, IOError, PermissionError) as e:
+                print(f"\nError de sistema: No se pudo acceder a los archivos necesarios.")
+                self.pausar()
+            except Exception as e:
+                # Log del error sin exponer información sensible
+                self._log_error_seguro("Error inesperado en el sistema", e)
+                print("\nError inesperado del sistema. Contacte al administrador.")
+                self.pausar()
 
 def main():
     """Función principal del programa."""
