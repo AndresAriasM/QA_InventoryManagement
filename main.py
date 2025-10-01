@@ -285,7 +285,7 @@ class SistemaInventario:
             if self.inventario.agregar_producto(producto):
                 print(f"\n✓ Producto '{nombre}' agregado exitosamente.")
             else:
-                print(f"\n✗ Error al agregar el producto.")
+                print("\n✗ Error al agregar el producto.")
         except Exception as e:
             print(f"\n✗ Error al crear el producto: {e}")
         
@@ -312,7 +312,7 @@ class SistemaInventario:
             if self.inventario.eliminar_producto(id_producto):
                 print(f"\n✓ Producto '{producto.nombre}' eliminado exitosamente.")
             else:
-                print(f"\n✗ Error al eliminar el producto.")
+                print("\n✗ Error al eliminar el producto.")
         else:
             print("Operación cancelada.")
         
@@ -347,7 +347,7 @@ class SistemaInventario:
             if self.inventario.actualizar_stock(id_producto, nueva_cantidad):
                 print(f"\n✓ Stock actualizado exitosamente a {nueva_cantidad} unidades.")
             else:
-                print(f"\n✗ Error al actualizar el stock.")
+                print("\n✗ Error al actualizar el stock.")
         except Exception as e:
             print(f"\n✗ Error al actualizar el stock: {e}")
         
@@ -382,7 +382,7 @@ class SistemaInventario:
             if self.inventario.actualizar_precio(id_producto, nuevo_precio):
                 print(f"\n✓ Precio actualizado exitosamente a ${nuevo_precio:.2f}.")
             else:
-                print(f"\n✗ Error al actualizar el precio.")
+                print("\n✗ Error al actualizar el precio.")
         except Exception as e:
             print(f"\n✗ Error al actualizar el precio: {e}")
         
@@ -537,7 +537,7 @@ class SistemaInventario:
                 print(f"\nError de datos: {e}")
                 self.pausar()
             except (OSError, IOError, PermissionError) as e:
-                print(f"\nError de sistema: No se pudo acceder a los archivos necesarios.")
+                print("\nError de sistema: No se pudo acceder a los archivos necesarios.")
                 self.pausar()
             except Exception as e:
                 # Log del error sin exponer información sensible
