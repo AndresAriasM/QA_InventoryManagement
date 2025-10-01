@@ -285,7 +285,7 @@ class SistemaInventario:
             if self.inventario.agregar_producto(producto):
                 print(f"\n✓ Producto '{nombre}' agregado exitosamente.")
             else:
-                print(f"\n✗ Error al agregar el producto.")
+                print("\n✗ Error al agregar el producto.")
         except Exception as e:
             print(f"\n✗ Error al crear el producto: {e}")
         
@@ -312,7 +312,7 @@ class SistemaInventario:
             if self.inventario.eliminar_producto(id_producto):
                 print(f"\n✓ Producto '{producto.nombre}' eliminado exitosamente.")
             else:
-                print(f"\n✗ Error al eliminar el producto.")
+                print("\n✗ Error al eliminar el producto.")
         else:
             print("Operación cancelada.")
         
@@ -347,7 +347,7 @@ class SistemaInventario:
             if self.inventario.actualizar_stock(id_producto, nueva_cantidad):
                 print(f"\n✓ Stock actualizado exitosamente a {nueva_cantidad} unidades.")
             else:
-                print(f"\n✗ Error al actualizar el stock.")
+                print("\n✗ Error al actualizar el stock.")
         except Exception as e:
             print(f"\n✗ Error al actualizar el stock: {e}")
         
@@ -382,7 +382,7 @@ class SistemaInventario:
             if self.inventario.actualizar_precio(id_producto, nuevo_precio):
                 print(f"\n✓ Precio actualizado exitosamente a ${nuevo_precio:.2f}.")
             else:
-                print(f"\n✗ Error al actualizar el precio.")
+                print("\n✗ Error al actualizar el precio.")
         except Exception as e:
             print(f"\n✗ Error al actualizar el precio: {e}")
         
@@ -490,6 +490,47 @@ class SistemaInventario:
         
         self.pausar()
     
+    def _procesar_opcion_menu(self, opcion):
+        """
+        Procesa la opción seleccionada del menú.
+        
+        Args:
+            opcion (int): Opción seleccionada por el usuario
+            
+        Returns:
+            bool: True si debe continuar, False si debe salir
+        """
+        if opcion == 0:
+            print("\n¡Gracias por usar el Sistema de Gestión de Inventarios!")
+            return False
+        elif opcion == 1:
+            self.agregar_producto()
+        elif opcion == 2:
+            self.eliminar_producto()
+        elif opcion == 3:
+            self.actualizar_stock()
+        elif opcion == 4:
+            self.actualizar_precio()
+        elif opcion == 5:
+            self.buscar_por_nombre()
+        elif opcion == 6:
+            self.buscar_por_categoria()
+        elif opcion == 7:
+            self.mostrar_todos_productos()
+        elif opcion == 8:
+            self.reporte_stock_bajo()
+        elif opcion == 9:
+            self.reporte_valor_inventario()
+        elif opcion == 10:
+            self.estadisticas_inventario()
+        elif opcion == 11:
+            self.configurar_umbral_stock()
+        else:
+            print("Opción inválida. Por favor seleccione una opción del 0 al 11.")
+            self.pausar()
+        
+        return True
+
     def ejecutar(self):
         """Ejecuta el sistema de inventarios."""
         while True:
@@ -501,34 +542,8 @@ class SistemaInventario:
                 if opcion is None:
                     continue
                 
-                if opcion == 0:
-                    print("\n¡Gracias por usar el Sistema de Gestión de Inventarios!")
+                if not self._procesar_opcion_menu(opcion):
                     break
-                elif opcion == 1:
-                    self.agregar_producto()
-                elif opcion == 2:
-                    self.eliminar_producto()
-                elif opcion == 3:
-                    self.actualizar_stock()
-                elif opcion == 4:
-                    self.actualizar_precio()
-                elif opcion == 5:
-                    self.buscar_por_nombre()
-                elif opcion == 6:
-                    self.buscar_por_categoria()
-                elif opcion == 7:
-                    self.mostrar_todos_productos()
-                elif opcion == 8:
-                    self.reporte_stock_bajo()
-                elif opcion == 9:
-                    self.reporte_valor_inventario()
-                elif opcion == 10:
-                    self.estadisticas_inventario()
-                elif opcion == 11:
-                    self.configurar_umbral_stock()
-                else:
-                    print("Opción inválida. Por favor seleccione una opción del 0 al 11.")
-                    self.pausar()
                     
             except KeyboardInterrupt:
                 print("\n\n¡Gracias por usar el Sistema de Gestión de Inventarios!")
@@ -537,7 +552,7 @@ class SistemaInventario:
                 print(f"\nError de datos: {e}")
                 self.pausar()
             except (OSError, IOError, PermissionError) as e:
-                print(f"\nError de sistema: No se pudo acceder a los archivos necesarios.")
+                print("\nError de sistema: No se pudo acceder a los archivos necesarios.")
                 self.pausar()
             except Exception as e:
                 # Log del error sin exponer información sensible
