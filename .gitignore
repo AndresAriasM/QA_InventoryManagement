@@ -78,7 +78,7 @@ venv.bak/
 htmlcov/
 .tox/
 .nox/
-coverage.xml
+#coverage.xml
 *.cover
 .hypothesis/
 
