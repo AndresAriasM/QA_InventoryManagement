@@ -304,7 +304,7 @@ class Inventario:
             
             # Escribir archivo con permisos seguros
             with open(archivo_seguro, 'w', encoding='utf-8') as archivo:
-            json.dump(datos, archivo, indent=2, ensure_ascii=False)
+                json.dump(datos, archivo, indent=2, ensure_ascii=False)
             
             # Establecer permisos seguros
             os.chmod(archivo_seguro, 0o644)
@@ -350,8 +350,8 @@ class Inventario:
                     continue  # Saltar entradas inválidas
                 
                 try:
-                producto = Producto.from_dict(producto_data)
-                self.productos[producto.id] = producto
+                    producto = Producto.from_dict(producto_data)
+                    self.productos[producto.id] = producto
                 except (KeyError, ValueError, TypeError) as e:
                     print(f"Error al cargar producto: {e}")
                     continue  # Continuar con el siguiente producto
