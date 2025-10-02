@@ -172,5 +172,42 @@ class TestSistemaInventarioCompleto(unittest.TestCase):
         self.assertTrue(any("Error de prueba" in mensaje for mensaje in log.output))
         self.assertTrue(any("ValueError" in mensaje for mensaje in log.output))
     
+    @patch.object(SistemaInventario, 'pausar', return_value=None)
+    def test_procesar_opcion_menu_todas_opciones(self, mock_pausar):
+        """Cubre todas las ramas del menú 1–11 sin pedir input real."""
+        metodos = [
+            'agregar_producto', 'eliminar_producto', 'actualizar_stock',
+            'actualizar_precio', 'buscar_por_nombre', 'buscar_por_categoria',
+            'mostrar_todos_productos', 'reporte_stock_bajo',
+            'reporte_valor_inventario', 'estadisticas_inventario',
+            'configurar_umbral_stock'
+        ]
+        for opcion, metodo in enumerate(metodos, start=1):
+            with patch.object(self.sistema, metodo, return_value=None) as mock_met:
+                resultado = self.sistema._procesar_opcion_menu(opcion)
+                self.assertTrue(resultado)
+                mock_met.assert_called_once()
+
+
+    @patch('builtins.input', side_effect=['0'])
+    @patch.object(SistemaInventario, 'pausar', return_value=None)
+    def test_ejecutar_sale_con_opcion_0(self, mock_pausar, mock_input):
+        """Cubre el bucle de ejecutar() hasta que el usuario elige salir."""
+        resultado = self.sistema.ejecutar()
+        self.assertIsNone(resultado)
+
+    def test_sanitizar_entrada_varios_casos(self):
+        """Prueba sanitización de diferentes entradas."""
+        self.assertEqual(self.sistema._sanitizar_entrada("  Hola  "), "  Hola  ")
+        self.assertEqual(self.sistema._sanitizar_entrada(None), "None")
+        self.assertEqual(self.sistema._sanitizar_entrada(123), "123")
+
+    def test_obtener_entrada_invalida_reintenta(self):
+        """Simula entrada inválida y luego válida."""
+        with patch('builtins.input', side_effect=['abc', '200']):
+            resultado = self.sistema.obtener_entrada("Número:", int)
+            self.assertEqual(resultado, 200)
+
+    
     
 
