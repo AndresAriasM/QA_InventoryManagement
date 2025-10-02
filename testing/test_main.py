@@ -171,4 +171,6 @@ class TestSistemaInventarioCompleto(unittest.TestCase):
         # Solo validamos que se registró el mensaje y el tipo de error
         self.assertTrue(any("Error de prueba" in mensaje for mensaje in log.output))
         self.assertTrue(any("ValueError" in mensaje for mensaje in log.output))
+    
+    
 

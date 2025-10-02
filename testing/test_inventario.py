@@ -486,5 +486,6 @@ class TestIntegracion(unittest.TestCase):
         self.assertFalse(self.inventario.actualizar_precio("INEXISTENTE", 100.0))
         self.assertFalse(self.inventario.eliminar_producto("INEXISTENTE"))
 
+
 if __name__ == '__main__':
     unittest.main()
