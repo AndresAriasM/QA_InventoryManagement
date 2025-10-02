@@ -22,11 +22,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov cryptography python-dotenv
       
       - name: Run tests with coverage
         run: |
-          pytest test_inventario.py --cov=. --cov-report=xml --cov-report=term
+          pytest testing/ --cov=. --cov-report=xml --cov-report=term
       
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

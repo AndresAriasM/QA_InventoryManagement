@@ -379,6 +379,40 @@ class TestInventario(unittest.TestCase):
         self.assertIn("TEST001", nuevo_inventario.productos)
         self.assertIn("TEST002", nuevo_inventario.productos)
 
+    def test_generar_reporte_stock_bajo(self):
+        """Test generación de reporte de stock bajo."""
+        self.inventario.agregar_producto(self.producto1)
+        self.inventario.agregar_producto(self.producto2)
+        
+        reporte = self.inventario.generar_reporte_stock_bajo(15)
+        self.assertIn("REPORTE", reporte)
+        self.assertIn("TEST001", reporte)
+
+    def test_generar_estadisticas(self):
+        """Test generación de estadísticas."""
+        self.inventario.agregar_producto(self.producto1)
+        self.inventario.agregar_producto(self.producto2)
+        
+        estadisticas = self.inventario.generar_estadisticas()
+        self.assertIn("ESTADÍSTICAS", estadisticas)
+        self.assertIn("Total de productos: 2", estadisticas)
+
+    def test_obtener_producto_mas_caro(self):
+        """Test obtener producto más caro."""
+        self.inventario.agregar_producto(self.producto1)  # 100.0
+        self.inventario.agregar_producto(self.producto2)  # 200.0
+        
+        mas_caro = self.inventario.obtener_producto_mas_caro()
+        self.assertEqual(mas_caro.id, "TEST002")
+
+    def test_calcular_promedio_precios_por_categoria(self):
+        """Test cálculo de promedio por categoría."""
+        self.inventario.agregar_producto(self.producto1)
+        self.inventario.agregar_producto(self.producto3)
+        
+        promedios = self.inventario.calcular_promedio_precios_por_categoria()
+        self.assertIn("Categoria A", promedios)
+
 class TestIntegracion(unittest.TestCase):
     """
     Tests de integración del sistema completo.
