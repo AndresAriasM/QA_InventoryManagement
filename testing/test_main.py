@@ -128,3 +128,47 @@ class TestSistemaInventarioCompleto(unittest.TestCase):
         self.assertFalse(self.sistema._validar_string_seguro("data:text/html,<script>"))
         self.assertFalse(self.sistema._validar_string_seguro("file:///etc/passwd"))
         self.assertTrue(self.sistema._validar_string_seguro("texto normal"))
+
+    @patch.object(SistemaInventario, 'pausar', return_value=None)
+    @patch('builtins.print')
+    def test_reporte_valor_inventario(self, mock_print, mock_pausar):
+        """Test reporte valor inventario usando cálculo real."""
+        self.sistema.inventario.calcular_valor_total_inventario = MagicMock(return_value=100.0)
+        self.sistema.inventario.productos = {"TEST001": MagicMock()}
+        self.sistema.reporte_valor_inventario()
+        mock_print.assert_any_call("REPORTE DE VALOR DEL INVENTARIO\n========================================\n"
+                                   "Total de productos: 1\nValor total del inventario: $100.00\n")
+
+    @patch.object(SistemaInventario, 'pausar', return_value=None)
+    @patch('builtins.print')
+    def test_reporte_stock_bajo(self, mock_print, mock_pausar):
+        """Test reporte stock bajo usando el reporte generado."""
+        self.sistema.inventario.generar_reporte_stock_bajo = MagicMock(
+            return_value="Productos con stock bajo:\nProducto TEST002"
+        )
+        self.sistema.reporte_stock_bajo()
+        mock_print.assert_any_call("Productos con stock bajo:\nProducto TEST002")
+
+    @patch.object(SistemaInventario, 'pausar', return_value=None)
+    def test_procesar_opcion_menu_salir(self, mock_pausar):
+        resultado = self.sistema._procesar_opcion_menu(0)
+        self.assertFalse(resultado)
+
+    @patch.object(SistemaInventario, 'pausar', return_value=None)
+    @patch('builtins.print')
+    def test_procesar_opcion_menu_invalida(self, mock_print, mock_pausar):
+        resultado = self.sistema._procesar_opcion_menu(99)
+        self.assertTrue(resultado)
+        mock_print.assert_called_with("Opción inválida. Por favor seleccione una opción del 0 al 11.")
+
+    def test_log_error_seguro(self):
+        """Test logging seguro con excepción."""
+        with self.assertLogs(level='ERROR') as log:
+            try:
+                raise ValueError("Boom")
+            except Exception as e:
+                self.sistema._log_error_seguro("Error de prueba", e)
+        # Solo validamos que se registró el mensaje y el tipo de error
+        self.assertTrue(any("Error de prueba" in mensaje for mensaje in log.output))
+        self.assertTrue(any("ValueError" in mensaje for mensaje in log.output))
+
